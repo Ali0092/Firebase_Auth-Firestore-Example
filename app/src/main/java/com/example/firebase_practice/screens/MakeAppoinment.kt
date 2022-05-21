@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import com.example.firebase_practice.DBRef
 import com.example.firebase_practice.R
 import com.example.firebase_practice.adapter.ItemAdapter
 import com.example.firebase_practice.databinding.FragmentMakeAppoinmentBinding
@@ -24,7 +25,9 @@ import java.lang.Exception
 class MakeAppoinment : Fragment() {
 
     private lateinit var binding: FragmentMakeAppoinmentBinding
-    val apptCollectionRef = Firebase.firestore.collection("Appointments")
+    val apptCollectionRef = DBRef.apptCollectionRef
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

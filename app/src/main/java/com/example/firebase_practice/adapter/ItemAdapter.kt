@@ -4,21 +4,21 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.firebase_practice.databinding.FragmentMakeAppoinmentBinding
+import com.example.firebase_practice.databinding.ItemsLayoutBinding
 import com.example.firebase_practice.model.ItemData
 
 class ItemAdapter : RecyclerView.Adapter<ItemAdapter.MyViewHolder>() {
 
     var itemsList = emptyList<ItemData>()
 
-    class MyViewHolder(val binding: FragmentMakeAppoinmentBinding) :
+    class MyViewHolder(val binding: ItemsLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
         //View Holder of the Adapter....
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemAdapter.MyViewHolder {
         return MyViewHolder(
-            FragmentMakeAppoinmentBinding.inflate(
+            ItemsLayoutBinding.inflate(
                 LayoutInflater.from(
                     parent.context
                 ), parent, false )

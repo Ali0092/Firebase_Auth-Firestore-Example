@@ -1,16 +1,14 @@
 package com.example.firebase_practice.screens
 
-import android.content.ClipData
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.firebase_practice.DBRef
 import com.example.firebase_practice.R
 import com.example.firebase_practice.adapter.ItemAdapter
 import com.example.firebase_practice.databinding.FragmentApptListBinding
@@ -26,7 +24,6 @@ class ApptListFragment : Fragment() {
 
     private lateinit var binding: FragmentApptListBinding
     val myAdapter by lazy { ItemAdapter() }
-    val apptRef = MakeAppoinment().apptCollectionRef
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,14 +32,7 @@ class ApptListFragment : Fragment() {
         binding = FragmentApptListBinding.inflate(layoutInflater)
         setUpRecyclerView()
 
-        try {
-            RetriveAppDataFromDB()
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-            Log.d("fireBaseException",e.message.toString())
-        }
-
-
+        RetriveAppDataFromDB()
 
         binding.addItem.setOnClickListener {
             this.findNavController().navigate(R.id.action_apptListFragment_to_makeAppoinment)
@@ -51,21 +41,28 @@ class ApptListFragment : Fragment() {
     }
 
 
-    private fun RetriveAppDataFromDB() = CoroutineScope(Dispatchers.IO).launch {
+    private fun RetriveAppDataFromDB() = CoroutineScope(Dispatchers.Main).launch {
         try {
-            val querySnapshot = apptRef.get().await()
-            val tempList = mutableListOf<ItemData>()
 
-            for (doc in querySnapshot.documents) {
-                val appt = doc.toObject<ItemData>()
-                tempList.add(appt!!)
+            val querySnapshot = DBRef.apptCollectionRef.get().await()
+            if (querySnapshot.documents != null) {
+                val tempList = mutableListOf<ItemData>()
+
+                for (doc in querySnapshot.documents) {
+                    val appt = doc.toObject<ItemData>()
+                    tempList.add(appt!!)
+                }
+
+                myAdapter.getDataChanges(tempList)
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "List is Empty...", Toast.LENGTH_LONG).show()
+                }
             }
 
-            myAdapter.getDataChanges(tempList)
-
         } catch (e: Exception) {
-            withContext(Dispatchers.Main){
-                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "${e.message} checking....", Toast.LENGTH_LONG).show()
             }
         }
     }
