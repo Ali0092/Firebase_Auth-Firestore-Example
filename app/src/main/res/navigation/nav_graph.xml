@@ -4,32 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
-
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.firebase_practice.screens.LoginFragment"
-        android:label="Login"
+        android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
-            android:id="@+id/action_loginFragment_to_apptListFragment"
-            app:destination="@id/apptListFragment" />
+            android:id="@+id/action_loginFragment_to_signupFragment"
+            app:destination="@id/signupFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_resultFragment"
+            app:destination="@id/resultFragment" />
     </fragment>
     <fragment
-        android:id="@+id/apptListFragment"
-        android:name="com.example.firebase_practice.screens.ApptListFragment"
-        android:label="Appointments"
-        tools:layout="@layout/fragment_appt_list" >
-        <action
-            android:id="@+id/action_apptListFragment_to_makeAppoinment"
-            app:destination="@id/makeAppoinment" />
-    </fragment>
+        android:id="@+id/resultFragment"
+        android:name="com.example.firebase_practice.screens.ResultFragment"
+        android:label="fragment_result"
+        tools:layout="@layout/fragment_result" />
     <fragment
-        android:id="@+id/makeAppoinment"
-        android:name="com.example.firebase_practice.screens.MakeAppoinment"
-        android:label="Make Appts.."
-        tools:layout="@layout/fragment_make_appoinment" >
+        android:id="@+id/signupFragment"
+        android:name="com.example.firebase_practice.screens.SignupFragment"
+        android:label="fragment_signup"
+        tools:layout="@layout/fragment_signup" >
         <action
-            android:id="@+id/action_makeAppoinment_to_apptListFragment"
-            app:destination="@id/apptListFragment" />
+            android:id="@+id/action_signupFragment_to_resultFragment"
+            app:destination="@id/resultFragment" />
     </fragment>
 </navigation>
