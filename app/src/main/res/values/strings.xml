@@ -2,4 +2,5 @@
     <string name="app_name">Firebase_practice</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="web_client_id">984702694904-9cu9eaml8u0f41orb33pc1il0knue6ou.apps.googleusercontent.com"</string>
 </resources>
