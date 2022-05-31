@@ -1,12 +1,14 @@
 package com.example.firebase_practice.screens
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.firebase_practice.R
@@ -22,12 +24,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-const val REQUEST_SIGN_IN_CODE=0
+const val REQUEST_SIGN_IN_CODE = 0
 
 class LoginFragment : Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
     lateinit var auth: FirebaseAuth
+    private lateinit var option: GoogleSignInOptions
+    private lateinit var getResults: ActivityResultLauncher<Intent>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,59 +39,70 @@ class LoginFragment : Fragment() {
     ): View {
         binding = FragmentLoginBinding.inflate(layoutInflater)
 
+        option = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id))
+            .requestEmail()
+            .build()
+
         auth = FireBaseInstance.Auth
 
-        if(auth.currentUser!=null){
-        Toast.makeText(context, auth.currentUser!!.displayName.toString(),Toast.LENGTH_SHORT).show()
+        if (auth.currentUser != null) {
+            Toast.makeText(context, auth.currentUser!!.displayName.toString(), Toast.LENGTH_SHORT)
+                .show()
+        }
+
+        getResults=registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+         try {
+             if (it.resultCode == RESULT_OK) {
+                 val account = GoogleSignIn.getSignedInAccountFromIntent(it.data).result
+                 account?.let { x->
+                     googleAuthForFirebase(x)
+                 }
+             }
+         }catch (e: NullPointerException) {
+             Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+         }
         }
 
         binding.btnLogin.setOnClickListener {
             Login()
         }
         binding.signOut.setOnClickListener {
+            val signInClient = GoogleSignIn.getClient(requireActivity(), option)
+            signInClient.signOut()
             auth.signOut()
-            Toast.makeText(context, "Signed Out ", Toast.LENGTH_LONG).show()
-
+            Toast.makeText(context, "Signed Out...", Toast.LENGTH_SHORT).show()
         }
 
         binding.signUp.setOnClickListener {
             this.findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
         }
         binding.siginWithGoogle.setOnClickListener {
-            val option=GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.web_client_id))
-                .requestEmail()
-                .build()
-            val signInClient=GoogleSignIn.getClient(requireActivity(), option)
-            signInClient.signInIntent.also {
-                startActivityForResult(it, REQUEST_SIGN_IN_CODE)
-            }
+            SignInWithGoogle()
         }
         return binding.root
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode== REQUEST_SIGN_IN_CODE){
-            val account=GoogleSignIn.getSignedInAccountFromIntent(data).result
-            account?.let {
-                googleAuthForFirebase(it)
-            }
-
-        }
+    private fun SignInWithGoogle() {
+        val signInClient = GoogleSignIn.getClient(requireActivity(), option)
+        getResults.launch(signInClient.signInIntent!!)
     }
 
     private fun googleAuthForFirebase(account: GoogleSignInAccount) {
-      val credentials=GoogleAuthProvider.getCredential(account.idToken,null)
+        val credentials = GoogleAuthProvider.getCredential(account.idToken, null)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 auth.signInWithCredential(credentials).await()
-                withContext(Dispatchers.Main){
-                    Toast.makeText(context, "Successfully Signed In with Google..", Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Successfully Signed In with Google..",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-            }catch (e:Exception){
-                withContext(Dispatchers.Main){
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
                 }
             }
